@@ -3,6 +3,10 @@ const REPKUP_MAXRNG = 21;
 // Where the actors are assigned to each other
 class REItemHandler : StaticEventHandler
 {
+	private Service _HHFunc;
+
+	private CVar _hlm_required;
+
 	private bool _noGlows;
 	private bool _hasReloaded; // Used for starting reload
 	private int _rngTic;
@@ -301,9 +305,14 @@ class REItemHandler : StaticEventHandler
 
 	override void WorldTick()
 	{
+		if (!_hlm_required) _hlm_required = CVar.GetCVar("repkup_requireshhelmet");
+		if (!_HHFunc) _HHFunc = ServiceIterator.Find("HHFunc").Next();
+		bool hasHelmet = _HHFunc && _HHFunc.GetInt("GetShowHUD", objectArg: players[ConsolePlayer].mo);
+
 		if (
 			!_noGlows &&
-			!_hasReloaded
+			!_hasReloaded &&
+			(!_hlm_required.GetBool() || !_HHFunc || hasHelmet)
 		)
 		{
 			// No need for complex stuff, just do a quick reload ;]
@@ -316,8 +325,9 @@ class REItemHandler : StaticEventHandler
 		// Don't save glows and thinkers (does not work if the game is paused)
 		if (
 			!_noGlows &&
-			repkup_nosave &&
-			(gameaction == ga_savegame || gameaction == ga_autosave)
+			((repkup_nosave &&
+			(gameaction == ga_savegame || gameaction == ga_autosave)) ||
+			(_hlm_required.GetBool() && _HHFunc && !hasHelmet))
 		)
 		{
 			// Force a reload after deleting

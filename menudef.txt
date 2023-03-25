@@ -39,6 +39,11 @@ OptionMenu "PKUPOptions" {
     StaticText "Does not work if the game is paused.", "Red"
     Option "Don't save glows and thinkers", "repkup_nosave", "YesNo"
 
+    StaticText " "
+
+    StaticText "If enabled, will require the Hideous Helmet to show glows", "White"
+    Option "Glows Require Hideous Helmet", "repkup_requireshhelmet", "YesNo"
+
 
     StaticText " "
     StaticText " "

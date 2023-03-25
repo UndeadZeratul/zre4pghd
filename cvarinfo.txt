@@ -11,3 +11,5 @@ nosave bool repkup_nosave=true;
 
 nosave bool repkup_overridescale=false;
 nosave bool repkup_debug=false;
+
+nosave bool repkup_requireshhelmet=false;
