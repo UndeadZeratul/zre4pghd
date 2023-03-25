@@ -5,6 +5,7 @@ class REItemHandler : StaticEventHandler
 {
 	private Service _HHFunc;
 
+	private CVar _hd_debug;
 	private CVar _hlm_required;
 
 	private bool _noGlows;
@@ -48,7 +49,7 @@ class REItemHandler : StaticEventHandler
 
 	private void ReloadItemGlows()
 	{
-		Console.PrintF("Reloading all glow effects...");
+		if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Reloading all glow effects...");
 		DeleteGlows();
 
 		let actors = ThinkerIterator.Create("Actor");
@@ -113,9 +114,9 @@ class REItemHandler : StaticEventHandler
 				if (repkup_debug)
 				{
 					if (info.UseIcon)
-						Console.PrintF("USE ICON");
+						if (_hd_debug && _hd_debug.getBool()) Console.PrintF("USE ICON");
 
-					Console.PrintF("Hi, "..T.GetClassName());
+					if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Hi, "..T.GetClassName());
 				}
 
 				// Set variables
@@ -141,7 +142,7 @@ class REItemHandler : StaticEventHandler
 
 	private void ParseGroups()
 	{
-		Console.PrintF("Reloading repkup_groups.txt...");
+		if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Reloading repkup_groups.txt...");
 
 		// Get all the stuff
 		Array<string> contents;
@@ -185,8 +186,8 @@ class REItemHandler : StaticEventHandler
 			{
 				if (temp.Size() != 0 && i != (contents.Size() - 1))
 				{
-					Console.PrintF("Group at line "..i + 1..." provided "..temp.Size().." arguments, but a minimum of 4 is required.");
-					Console.PrintF("Ignoring group at line"..i + 1);
+					if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Group at line "..i + 1..." provided "..temp.Size().." arguments, but a minimum of 4 is required.");
+					if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Ignoring group at line"..i + 1);
 				}
 				continue;
 			}
@@ -197,8 +198,8 @@ class REItemHandler : StaticEventHandler
 			{
 				if (temp[a] == "")
 				{
-					Console.PrintF("Group at line "..i + 1..." provided "..temp.Size().." arguments, but argument "..a + 1..." is null.");
-					Console.PrintF("Ignoring group at line "..i + 1);
+					if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Group at line "..i + 1..." provided "..temp.Size().." arguments, but argument "..a + 1..." is null.");
+					if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Ignoring group at line "..i + 1);
 					isNull = true;
 					break;
 				}
@@ -265,8 +266,7 @@ class REItemHandler : StaticEventHandler
 
 	override void WorldThingSpawned(WorldEvent e)
 	{
-		if (_noGlows && !_hasReloaded)
-			return;
+		if (_noGlows && !_hasReloaded) return;
 
 		let T = e.Thing;
 		foreach (info : _infoList)
@@ -274,8 +274,7 @@ class REItemHandler : StaticEventHandler
 			bool found = SummonGlow(info, T);
 
 			// Don't keep looping after found
-			if (found)
-				break;
+			if (found) break;
 		}
 	}
 
@@ -288,7 +287,7 @@ class REItemHandler : StaticEventHandler
 			if (_noGlows)
 			{
 				_noGlows = false;
-				Console.PrintF("Pickup glows enabled. Use \"repkup_clear\" to disable pickup glows.");
+				if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Pickup glows enabled. Use \"repkup_clear\" to disable pickup glows.");
 			}
 
 			ParseGroups();
@@ -299,12 +298,14 @@ class REItemHandler : StaticEventHandler
 			ClearGroups();
 			DeleteGlows();
 			_noGlows = true;
-			Console.PrintF("Pickup glows temporarily disabled. Use \"repkup_reload\" to enable pickup glows.");
+			if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Pickup glows temporarily disabled. Use \"repkup_reload\" to enable pickup glows.");
 		}
 	}
 
 	override void WorldTick()
 	{
+		if (!_hd_debug) _hd_debug = CVar.GetCVar("hd_debug");
+
 		if (!_hlm_required) _hlm_required = CVar.GetCVar("repkup_requireshhelmet");
 		if (!_HHFunc) _HHFunc = ServiceIterator.Find("HHFunc").Next();
 		bool hasHelmet = _HHFunc && _HHFunc.GetInt("GetShowHUD", objectArg: players[ConsolePlayer].mo);
@@ -333,7 +334,7 @@ class REItemHandler : StaticEventHandler
 			// Force a reload after deleting
 			_hasReloaded = false;
 
-			Console.PrintF("Removing all glow effects...");
+			if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Removing all glow effects...");
 			ClearGroups();
 			DeleteGlows();
 		}
