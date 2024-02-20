@@ -36,6 +36,7 @@ class REItemHandler : StaticEventHandler
 	// Remove all glows
 	private void DeleteGlows()
 	{
+		if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Removing all glow effects...");
 		let glows = ThinkerIterator.Create("REItemGlow", Thinker.STAT_DEFAULT);
 		let glow = glows.Next();
 		while (glow)
@@ -334,7 +335,6 @@ class REItemHandler : StaticEventHandler
 			// Force a reload after deleting
 			_hasReloaded = false;
 
-			if (_hd_debug && _hd_debug.getBool()) Console.PrintF("Removing all glow effects...");
 			ClearGroups();
 			DeleteGlows();
 		}
